@@ -69,6 +69,7 @@ func getMotdBE(ip string,port string)(MotdBEJson){
 
 func main() {
     r := gin.Default()
+	gin.SetMode(gin.ReleaseMode)
 
 	r.Static("/public", "./public")//定义静态资源目录
 
