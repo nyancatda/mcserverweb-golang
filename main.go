@@ -7,6 +7,7 @@ import (
 	"encoding/json"
     "net/http"
     "github.com/gin-gonic/gin"
+	"time"
 )
 
 type Config struct {
@@ -49,7 +50,8 @@ func getConfig()(Config){
 //https://wiki.blackbe.xyz/api/motd.html
 func getMotdBE(ip string,port string)(MotdBEJson){
 	url := "http://motdpe.blackbe.xyz/api.php?ip="+ip+"&port="+port
-    res, err := http.Get(url)
+	client := http.Client{Timeout: 10 * time.Second}//设置10秒超时
+	res, err := client.Get(url)
     if err != nil {
         fmt.Fprintf(os.Stderr, "fetch: %v\n", err)
         os.Exit(1)
