@@ -68,12 +68,14 @@ func getMotdBE(ip string,port string)(MotdBEJson){
 
 
 func main() {
-    r := gin.Default()
 	gin.SetMode(gin.ReleaseMode)
+    r := gin.Default()
 
 	r.Static("/public", "./public")//定义静态资源目录
-
 	r.LoadHTMLGlob("assets/**/*")
+	ServerPort := fmt.Sprintf("%d", getConfig().ServerPort)
+	fmt.Println("网站已运行在 "+ServerPort+" 端口")
+
     r.GET("/", func(c *gin.Context) {
 		Config := getConfig()
 		ServerInfo := getMotdBE(Config.IP,Config.Port)
@@ -103,6 +105,5 @@ func main() {
 			"version":ServerInfo.Version})
     })
 
-	ServerPort := fmt.Sprintf("%d", getConfig().ServerPort)
     r.Run(":"+ServerPort)
 }
