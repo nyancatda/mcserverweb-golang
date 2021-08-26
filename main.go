@@ -54,17 +54,14 @@ func getMotdBE(ip string,port string)(MotdBEJson){
 	res, err := client.Get(url)
     if err != nil {
         fmt.Fprintf(os.Stderr, "fetch: %v\n", err)
-        os.Exit(1)
     }
     body, err := ioutil.ReadAll(res.Body)
     res.Body.Close()
     if err != nil {
         fmt.Fprintf(os.Stderr, "fetch: reading %s: %v\n", url, err)
-        os.Exit(1)
     }
     var config MotdBEJson
 	json.Unmarshal([]byte(body), &config)
-	fmt.Println(config)
     return config
 }
 
