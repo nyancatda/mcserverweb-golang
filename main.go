@@ -1,40 +1,40 @@
 package main
 
 import (
-	"fmt"
-	"io/ioutil"
-	"os"
 	"encoding/json"
-    "net/http"
-    "github.com/gin-gonic/gin"
+	"fmt"
+	"github.com/gin-gonic/gin"
+	"io/ioutil"
+	"net/http"
+	"os"
 	"time"
 )
 
 type Config struct {
-	ServerName string `json:"servername"`
-	IP string `json:"ip"`
-	Port string `json:"port"`
-	Introduced string `json:"introduced"`
+	ServerName  string `json:"servername"`
+	IP          string `json:"ip"`
+	Port        string `json:"port"`
+	Introduced  string `json:"introduced"`
 	QQGrouplink string `json:"qqgrouplink"`
-	Email string `json:"email"`
-	ServerPort int `json:"serverport"`
+	Email       string `json:"email"`
+	ServerPort  int    `json:"serverport"`
 }
 
 type MotdBEJson struct {
-    Status string `json:"status"`
-    IP string `json:"ip"`
-    Port string `json:"port"`
-    Motd string `json:"motd"`
-	Agreement string `json:"agreement"`
-	Version string `json:"version"`
-	Online string `json:"online"`
-	Max string `json:"max"`
-	Gamemode string `json:"gamemode"`
-	Delay int `json:"delay"`
+	Status     string `json:"status"`
+	Host       string `json:"host"`
+	Motd       string `json:"motd"`
+	Agreement  int    `json:"agreement"`
+	Version    string `json:"version"`
+	Online     int    `json:"online"`
+	Max        int    `json:"max"`
+	Level_name string `json:"level_name"`
+	Gamemode   string `json:"gamemode"`
+	Delay      int    `json:"delay"`
 }
 
 //读取配置文件
-func getConfig()(Config){
+func getConfig() Config {
 	jsonFile, err := os.Open("config.json")
 	if err != nil {
 		fmt.Println(err)
@@ -48,61 +48,60 @@ func getConfig()(Config){
 
 //请求MotdPE API
 //https://wiki.blackbe.xyz/api/motd.html
-func getMotdBE(ip string,port string)(MotdBEJson){
-	url := "http://motdpe.blackbe.xyz/api.php?ip="+ip+"&port="+port
-	client := http.Client{Timeout: 10 * time.Second}//设置10秒超时
+func getMotdBE(ip string, port string) MotdBEJson {
+	url := "https://motdbe.blackbe.xyz/api?host=" + ip + ":" + port
+	client := http.Client{Timeout: 10 * time.Second} //设置10秒超时
 	res, err := client.Get(url)
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "fetch: %v\n", err)
-    }
-    body, err := ioutil.ReadAll(res.Body)
-    res.Body.Close()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "fetch: reading %s: %v\n", url, err)
-    }
-    var config MotdBEJson
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "fetch: %v\n", err)
+	}
+	body, err := ioutil.ReadAll(res.Body)
+	res.Body.Close()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "fetch: reading %s: %v\n", url, err)
+	}
+	var config MotdBEJson
 	json.Unmarshal([]byte(body), &config)
-    return config
+	return config
 }
-
 
 func main() {
 	gin.SetMode(gin.ReleaseMode)
-    r := gin.Default()
+	r := gin.Default()
 
-	r.Static("/public", "./public")//定义静态资源目录
+	r.Static("/public", "./public") //定义静态资源目录
 	r.LoadHTMLGlob("assets/**/*")
 	ServerPort := fmt.Sprintf("%d", getConfig().ServerPort)
-	fmt.Println("网站已运行在 "+ServerPort+" 端口")
+	fmt.Println("网站已运行在 " + ServerPort + " 端口")
 
-    r.GET("/", func(c *gin.Context) {
+	r.GET("/", func(c *gin.Context) {
 		Config := getConfig()
-		ServerInfo := getMotdBE(Config.IP,Config.Port)
+		ServerInfo := getMotdBE(Config.IP, Config.Port)
 
 		var Status string
 		var Status_bool bool
-		if ServerInfo.Status == "online"{
+		if ServerInfo.Status == "online" {
 			Status = "在线"
 			Status_bool = true
 		} else {
 			Status = "离线"
-			Status_bool =false
+			Status_bool = false
 		}
 
-        c.HTML(http.StatusOK, "index/index.html", gin.H{
-			"servername": Config.ServerName,
-			"ip": Config.IP,
-			"port": Config.Port,
-			"introduced": Config.Introduced,
+		c.HTML(http.StatusOK, "index/index.html", gin.H{
+			"servername":  Config.ServerName,
+			"ip":          Config.IP,
+			"port":        Config.Port,
+			"introduced":  Config.Introduced,
 			"qqgrouplink": Config.QQGrouplink,
-			"email": Config.Email,
-			"status": Status,
+			"email":       Config.Email,
+			"status":      Status,
 			"status_bool": Status_bool,
-			"online":ServerInfo.Online,
-			"max":ServerInfo.Max,
-			"delay":ServerInfo.Delay,
-			"version":ServerInfo.Version})
-    })
+			"online":      ServerInfo.Online,
+			"max":         ServerInfo.Max,
+			"delay":       ServerInfo.Delay,
+			"version":     ServerInfo.Version})
+	})
 
-    r.Run(":"+ServerPort)
+	r.Run(":" + ServerPort)
 }
