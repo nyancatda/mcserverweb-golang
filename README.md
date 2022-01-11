@@ -15,4 +15,4 @@
 |serverport|网站运行端口|
 
 ## 背景图片说明  
-替换图片`public/images/default.jpg`即可
+替换图片`assets/images/default.jpg`即可

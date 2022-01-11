@@ -69,8 +69,8 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 
-	r.Static("/public", "./public") //定义静态资源目录
-	r.LoadHTMLGlob("assets/**/*")
+	r.Static("/assets", "./assets") //定义静态资源目录
+	r.LoadHTMLGlob("assets/template/**/*")
 	ServerPort := fmt.Sprintf("%d", getConfig().ServerPort)
 	fmt.Println("网站已运行在 " + ServerPort + " 端口")
 
