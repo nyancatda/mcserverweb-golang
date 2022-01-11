@@ -16,3 +16,6 @@
 
 ## 背景图片说明  
 替换图片`assets/images/default.jpg`即可
+
+## 鸣谢
+感谢[BlackBE](https://github.com/BlackBEDevelopment)团队提供的[MotdBEAPI](https://github.com/BlackBEDevelopment/MCBE-Server-Motd)
